@@ -2,7 +2,7 @@
 
 This is a dockerised setup of [Apache Spark](http://spark.apache.org) (master
 and worker in standalone mode in separate containers) on top of [Apache
-Hadoop](http://hadoop.apache.org), with a single node [Apache
+Hadoop](http://hadoop.apache.org) (one namenode, one datanode), with a single node [Apache
 Kudu](https://kudu.apache.org) for a "why not".
 
 The Scala project under `analysis/` can be used to load some data into `kudu`,
@@ -32,15 +32,15 @@ Assuming you have the yelp dataset available (or a reduced version of it) just r
 
 This will:
 
-1. Build Hadoop namenode and datanode Docker images (based on `openjdk:8`)
-2. Build Spark worker and master Docker images (likewise)
+1. Build Hadoop `namenode` and `datanode` Docker images (based on `openjdk:8`)
+2. Build Spark `worker` and `master` Docker images (likewise)
 3. Build a Kudu image (can be used for any of the Kudu components)
 4. Run a local (you will need Scala and `sbt`) build of the Spark project. If you don't have `sbt`, you can change this for `make jar` which will do likewise but inside a Docker container
 5. Use Docker compose to set up all the containers above
 6. Once the Hadoop datanode is up, upload the files required from the TAR file into HDFS
 7. Run the largest clique computation, stores output to HDFS
-8. Load some HDFS data into Kudu
-9. Run some analysis using the Kudu tables, stores output to HDFS
+8. Load some HDFS data into `kudu`
+9. Run some analysis using the `kudu` tables, stores output to HDFS
 10. Copy the outputs from HDFS to "local" (volume mapped to user instance)
 11. Shut down the system and clean up most of the Docker images
 
