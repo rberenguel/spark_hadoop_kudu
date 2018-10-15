@@ -1,0 +1,56 @@
+version: '2' 
+services:
+  namenode:
+    image: hadoop-namenode
+    container_name: namenode
+    volumes:
+      - ./data/namenode:/hadoop/dfs/name
+    environment:
+      - CLUSTER_NAME=test
+    env_file:
+      - ./hadoop.env
+    ports:
+      - 50070:50070
+      - 8020:8020
+  datanode:
+    image: hadoop-datanode
+    container_name: datanode
+    depends_on: 
+      - namenode
+    volumes:
+      - ./data/datanode:/hadoop/dfs/data
+    env_file:
+      - ./hadoop.env
+    ports:
+      - 50075:50075
+  kudu-all-in-one:
+    image: kudu-base
+    volumes:
+      - /var/lib/kudu/master
+      - /var/lib/kudu/tserver
+    ports:
+      - 7050:7050
+      - 7051:7051
+      - 8050:8050
+      - 8051:8051
+    command: single
+  spark-master:
+    image: spark-master
+    depends_on:
+      - kudu-all-in-one
+    container_name: spark-master
+    ports:
+      - 8080:8080
+      - 7077:7077
+    env_file:
+      - ./hadoop.env
+  spark-worker:
+    image: spark-worker
+    depends_on:
+      - spark-master
+    environment:
+      - SPARK_MASTER=spark://spark-master:7077
+    ports:
+      - 8081:8081
+    env_file:
+      - ./hadoop.env
